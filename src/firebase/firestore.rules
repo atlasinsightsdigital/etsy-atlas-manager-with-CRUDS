@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =================================
+    // Helper Functions
+    // =================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Check if the user has the 'admin' role by reading their user profile
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Check if the user is the owner of the document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // =================================
+    // Collection: users
+    // =================================
+    match /users/{userId} {
+      // Anyone signed in can view user profiles
+      allow read: if isSignedIn();
+      
+      // Only the user themself or an admin can create/update their own profile
+      allow create, update: if isOwner(userId) || isAdmin();
+
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // =================================
+    // Collection: orders
+    // =================================
+    match /orders/{orderId} {
+      // Any signed-in user can perform CRUD operations for now
+      allow read, write: if isSignedIn();
+    }
+
+    // =================================
+    // Collection: capital
+    // =================================
+    match /capital/{capitalId} {
+       // Any signed-in user can perform CRUD operations for now
+      allow read, write: if isSignedIn();
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents an application user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the user." },
+        "name": { "type": "string", "description": "User's display name." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "User's role." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of user creation." }
+      },
+      "required": ["id", "name", "email", "role", "createdAt"]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents an order.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the order." },
+        "etsyOrderId": { "type": "string", "description": "Etsy's unique order ID." },
+        "orderDate": { "type": "string", "format": "date", "description": "Date the order was placed." },
+        "status": { "type": "string", "enum": ["Pending", "Shipped", "Delivered", "Cancelled"], "description": "Current status of the order." },
+        "orderPrice": { "type": "number", "description": "Total price of the order." },
+        "orderCost": { "type": "number", "description": "Cost of goods for the order." },
+        "shippingCost": { "type": "number", "description": "Cost of shipping." },
+        "additionalFees": { "type": "number", "description": "Any other fees." },
+        "notes": { "type": "string", "description": "Internal notes for the order." },
+        "trackingNumber": { "type": "string", "description": "Shipping tracking number." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of order creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update." }
+      },
+      "required": ["id", "etsyOrderId", "orderDate", "status", "orderPrice", "orderCost", "shippingCost", "additionalFees"]
+    },
+    "CapitalEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CapitalEntry",
+      "type": "object",
+      "description": "Represents a capital movement (deposit or withdrawal).",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the entry." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of entry creation." },
+        "transactionDate": { "type": "string", "format": "date", "description": "Date of the transaction." },
+        "type": { "type": "string", "enum": ["Deposit", "Withdrawal"], "description": "Type of capital movement." },
+        "amount": { "type": "number", "description": "Amount of money moved." },
+        "source": { "type": "string", "enum": ["Etsy Payout", "Loan", "Dividend", "Investment"], "description": "Source of the capital." },
+        "submittedBy": { "type": "string", "description": "Email of the user who submitted the entry." },
+        "notes": { "type": "string", "description": "Optional notes for the entry." }
+      },
+      "required": ["id", "createdAt", "transactionDate", "type", "amount", "source", "submittedBy"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profile information."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Stores all order information for the business."
+    },
+    "/capital/{capitalId}": {
+      "schema": { "$ref": "#/entities/CapitalEntry" },
+      "description": "Stores all capital entry information for the business."
+    }
+  }
+}
